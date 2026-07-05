@@ -214,6 +214,16 @@
           }
         }
       }
+    },
+    "/api/v1/dashboard/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
