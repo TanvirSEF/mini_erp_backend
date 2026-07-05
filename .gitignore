@@ -27,3 +27,9 @@ Thumbs.db
 
 # Test coverage
 coverage/
+
+# Uploaded files
+/uploads/*
+!/uploads/.gitkeep
+
+prd
