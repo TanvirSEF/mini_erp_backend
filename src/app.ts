@@ -1,6 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import { UserRoutes } from './app/modules/user/user.route';
+import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './docs/swagger.json';
@@ -14,8 +14,8 @@ app.use(cors());
 // API Docs (Swagger UI)
 app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Application Router Entry points
-app.use('/api/v1/auth', UserRoutes);
+// Application Routes
+app.use('/api/v1', router);
 
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({
