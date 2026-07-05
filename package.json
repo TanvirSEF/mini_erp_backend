@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc && node scripts/copy-assets.js",
+    "build": "tsc",
     "start": "node dist/server.js",
     "swagger:autogen": "ts-node-dev --transpile-only src/docs/swagger.ts",
     "test": "echo \"Error: no test specified\" && exit 1"

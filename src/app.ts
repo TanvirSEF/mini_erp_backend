@@ -3,7 +3,12 @@ import cors from 'cors';
 import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import swaggerUi from 'swagger-ui-express';
-import swaggerDocument from './docs/swagger.json';
+import fs from 'fs';
+import path from 'path';
+
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.join(process.cwd(), 'src/docs/swagger.json'), 'utf-8')
+);
 
 const app: Application = express();
 
