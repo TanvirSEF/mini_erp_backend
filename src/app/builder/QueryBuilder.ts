@@ -21,6 +21,25 @@ class QueryBuilder<T> {
     return this;
   }
 
+  filter() {
+    const queryObj = { ...this.query };
+    delete queryObj.searchTerm;
+    delete queryObj.sort;
+    delete queryObj.page;
+    delete queryObj.limit;
+
+    this.modelQuery = this.modelQuery.find(queryObj);
+    return this;
+  }
+
+  sort() {
+    const sortBy = (this?.query?.sort as string) || '';
+    if (sortBy) {
+      this.modelQuery = this.modelQuery.sort(sortBy);
+    }
+    return this;
+  }
+
   paginate() {
     const page = Number(this?.query?.page) || 1;
     const limit = Number(this?.query?.limit) || 10;
