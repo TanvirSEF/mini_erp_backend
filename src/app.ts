@@ -2,12 +2,17 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import { UserRoutes } from './app/modules/user/user.route';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from './docs/swagger.json';
 
 const app: Application = express();
 
 // Parsers
 app.use(express.json());
 app.use(cors());
+
+// API Docs (Swagger UI)
+app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Application Router Entry points
 app.use('/api/v1/auth', UserRoutes);
