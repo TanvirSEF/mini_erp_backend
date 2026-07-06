@@ -1,12 +1,10 @@
-# Mini ERP — Inventory & Sales Backend
+# Mini ERP Backend
 
 Backend for a small inventory and sales app. It covers JWT login, role-based access, products (with images, search, sort, and pagination), sales with automatic stock control, and a dashboard. API docs are generated with Swagger.
 
 ## Test login
 - Email: `admin@test.com`
 - Password: `pass1234`
-
-There is no public sign-up. Admins create users from the admin panel (`POST /users`).
 
 ## Live links
 - API: https://erp.tanvirmern.com
@@ -21,7 +19,7 @@ Needs Node.js 18+, pnpm, a MongoDB Atlas connection string, and a Cloudinary acc
 git clone https://github.com/TanvirSEF/mini_erp_backend.git
 cd mini_erp_backend
 pnpm install
-cp .env.example .env   # then fill in your values
+cp .env.example .env
 pnpm dev
 ```
 
