@@ -54,8 +54,7 @@ const createSale = async (payload: TSaleInput) => {
         subtotal,
       });
 
-      // Track products that just fell below the threshold so we can push
-      // a single low-stock notification after the sale is committed.
+      // Collected to emit a single low-stock event after the commit
       if (product.stockQuantity < LOW_STOCK_THRESHOLD) {
         lowStockAlerts.push({
           _id: product._id,
@@ -69,8 +68,7 @@ const createSale = async (payload: TSaleInput) => {
     const sale = await Sale.create([{ items: saleItems, grandTotal }], { session });
     await session.commitTransaction();
 
-    // Real-time updates for connected dashboard clients.
-    // emitToRoom swallows its own errors, so this never breaks the sale flow.
+    // emitToRoom swallows errors, so this can't break the sale flow
     emitToRoom('dashboard', 'sale:created', {
       saleId: sale[0]._id,
       grandTotal,

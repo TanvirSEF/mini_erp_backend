@@ -1,8 +1,7 @@
 import { ErrorRequestHandler } from 'express';
 import config from '../config';
 
-// Central error handler. Converts library-specific errors (Mongoose, JWT)
-// into clean, consistent HTTP responses and keeps internals out of prod.
+// Converts Mongoose/JWT errors into consistent HTTP responses; hides internals in prod
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Something went wrong!';

@@ -1,10 +1,7 @@
 import { Role } from './role.model';
 import { PERMISSIONS, WILDCARD_PERMISSION } from './role.permissions';
 
-// Default role -> permission mapping.
-// These are only inserted when a role does not exist yet, so an admin can
-// freely edit permissions through the /roles API without the next restart
-// clobbering their changes.
+// $setOnInsert below means these never overwrite a role an admin has edited
 const defaultRoles = [
   {
     name: 'Admin',
@@ -34,7 +31,7 @@ const defaultRoles = [
   },
 ];
 
-// Idempotent seed: inserts missing roles only, never overwrites existing ones.
+// Idempotent: only inserts roles that don't exist yet
 export const seedRoles = async (): Promise<void> => {
   for (const role of defaultRoles) {
     await Role.updateOne({ name: role.name }, { $setOnInsert: role }, { upsert: true });

@@ -8,8 +8,7 @@ const doc = {
     version: '1.0.0',
     description: 'Auto-generated API documentation.',
   },
-  // Note: route paths already include the /api/v1 mount prefix (autogen reads
-  // app.ts), so the server URL must NOT repeat it, or "Try it out" 404s.
+  // Paths already include /api/v1, so the server URL must not repeat it (else Try-it-out 404s)
   servers: [{ url: 'http://localhost:5000' }],
   components: {
     securitySchemes: {
@@ -194,10 +193,7 @@ const outputFile = './src/docs/swagger.json';
 const endpointsFiles = ['./src/app.ts'];
 
 swaggerAutogen({ openapi: '3.0.0' })(outputFile, endpointsFiles, doc).then(() => {
-  // Collection routes are registered as router.get('/') on a sub-router, so
-  // autogen emits a trailing slash (e.g. /api/v1/products/). Express matches
-  // both /x and /x/ at runtime, but the slash looks untidy in the docs, so we
-  // normalise the paths here. The root "/" is left untouched.
+  // Strip the trailing slash autogen adds on collection routes (cosmetic; root kept)
   const spec = JSON.parse(fs.readFileSync(outputFile, 'utf-8'));
   const cleaned: { [path: string]: any } = {};
   for (const [path, definition] of Object.entries(spec.paths)) {

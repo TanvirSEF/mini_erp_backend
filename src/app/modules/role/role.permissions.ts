@@ -1,6 +1,4 @@
-// Central catalogue of permission strings used by the route guards.
-// Format is resource:action so they read clearly, e.g. auth('product:create').
-// Keep this list in sync with the seeded roles below.
+// Permission catalogue for the route guards. Format: resource:action, e.g. auth('product:create').
 export const PERMISSIONS = {
   PRODUCT_READ: 'product:read',
   PRODUCT_CREATE: 'product:create',
@@ -15,10 +13,8 @@ export const PERMISSIONS = {
   ROLE_MANAGE: 'role:manage',
 } as const;
 
-// The wildcard permission grants access to every route. Reserved for Admin
-// so a single super-user can never be locked out by a misconfiguration.
+// Reserved for Admin — grants every route so the system can't be locked out
 export const WILDCARD_PERMISSION = '*';
 
-// Every permission the system knows about. Used to validate payloads sent
-// to the role-management API so unknown strings cannot sneak in.
+// Used to validate role-management payloads (rejects unknown strings)
 export const ALL_PERMISSIONS: string[] = Object.values(PERMISSIONS);

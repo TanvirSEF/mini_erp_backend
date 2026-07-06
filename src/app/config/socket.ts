@@ -3,11 +3,9 @@ import http from 'http';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from './index';
 
-// The socket server is created lazily and held in this module so the rest
-// of the app can reach it through getIO() without passing it around.
+// Held in module scope so other files can reach the running server via getIO()
 let io: SocketServer | null = null;
 
-// Boot the Socket.IO server and attach JWT authentication to every connection.
 export const initSocketServer = (server: http.Server): SocketServer => {
   io = new SocketServer(server, {
     cors: {
@@ -16,7 +14,7 @@ export const initSocketServer = (server: http.Server): SocketServer => {
     },
   });
 
-  // Handshake middleware: the client must pass its access token in handshake.auth
+  // Clients must send their access token in handshake.auth
   io.use((socket, next) => {
     const token = (socket.handshake.auth?.token as string) || undefined;
 
@@ -36,13 +34,12 @@ export const initSocketServer = (server: http.Server): SocketServer => {
   io.on('connection', (socket) => {
     const user = socket.data.user as JwtPayload | undefined;
 
-    // Group clients by role so we can target broadcasts, e.g. all managers
+    // Group clients by role for targeted broadcasts
     if (user?.role) {
       socket.join(`role:${user.role}`);
     }
 
-    // Every authenticated client listens on the dashboard channel for
-    // live sale and low-stock notifications.
+    // Dashboard channel for live sale/low-stock updates
     socket.join('dashboard');
   });
 
