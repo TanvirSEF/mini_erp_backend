@@ -5,7 +5,7 @@ import AppError from '../../errors/AppError';
 import { User } from './user.model';
 import { ILoginUser, IUser } from './user_interface';
 
-const registerUserIntoDB = async (payload: IUser) => {
+const createUserIntoDB = async (payload: IUser) => {
   const result = await User.create(payload);
   const userObj = result.toObject() as Partial<IUser>;
   delete userObj.password;
@@ -92,7 +92,7 @@ const deleteUserFromDB = async (id: string, currentUserId: string) => {
 };
 
 export const UserServices = {
-  registerUserIntoDB,
+  createUserIntoDB,
   loginUser,
   getAllUsersFromDB,
   updateUserRoleIntoDB,

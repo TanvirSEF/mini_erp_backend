@@ -8,6 +8,22 @@ import validateRequest from '../../middlewares/validateRequest';
 // admin user management mounted at /users
 const userRouter = Router();
 
+userRouter.post(
+  '/',
+  auth(PERMISSIONS.USER_MANAGE),
+  validateRequest(UserValidations.createUserValidation),
+  /* #swagger.tags = ['Users'] */
+  /* #swagger.summary = 'Create a new user (admin)' */
+  /* #swagger.security = [{ bearerAuth: [] }] */
+  /* #swagger.requestBody = {
+        required: true,
+        content: { "application/json": { schema: { $ref: '#/components/schemas/UserInput' } } }
+      } */
+  /* #swagger.responses[201] = { description: 'Created', schema: { $ref: '#/components/schemas/UserResponse' } } */
+  /* #swagger.responses[400] = { description: 'Duplicate email / invalid input', schema: { $ref: '#/components/schemas/ErrorResponse' } } */
+  UserControllers.createUser
+);
+
 userRouter.get(
   '/',
   auth(PERMISSIONS.USER_MANAGE),

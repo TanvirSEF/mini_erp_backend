@@ -5,10 +5,11 @@ const loginValidation = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-const registerValidation = z.object({
+const createUserValidation = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Valid email is required'),
-  password: z.string().min(1, 'Password is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum(['Admin', 'Manager', 'Employee']),
 });
 
 const updateRoleValidation = z.object({
@@ -17,6 +18,6 @@ const updateRoleValidation = z.object({
 
 export const UserValidations = {
   loginValidation,
-  registerValidation,
+  createUserValidation,
   updateRoleValidation,
 };
