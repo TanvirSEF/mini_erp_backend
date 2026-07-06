@@ -21,7 +21,7 @@ COPY --from=builder /app/dist ./dist
 # app reads swagger.json at runtime
 COPY --from=builder /app/src/docs/swagger.json ./src/docs/swagger.json
 
-RUN mkdir -p uploads && chown -R node:node /app
+RUN chown -R node:node /app
 USER node
 
 EXPOSE 5000

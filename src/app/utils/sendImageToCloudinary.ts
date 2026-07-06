@@ -1,6 +1,5 @@
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import config from '../config';
-import fs from 'fs';
 
 cloudinary.config({
   cloud_name: config.cloudinary_cloud_name,
@@ -8,13 +7,17 @@ cloudinary.config({
   api_secret: config.cloudinary_api_secret,
 });
 
-export const sendImageToCloudinary = (imageName: string, path: string): Promise<UploadApiResponse | undefined> => {
+// upload an in-memory buffer (multer memoryStorage) straight to cloudinary
+export const sendImageToCloudinary = (
+  imageName: string,
+  buffer: Buffer
+): Promise<UploadApiResponse> => {
   return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(path, { public_id: imageName }, (error, result) => {
-      // remove local file after upload
-      fs.unlinkSync(path);
-      if (error) reject(error);
-      resolve(result);
-    });
+    cloudinary.uploader
+      .upload_stream({ public_id: imageName }, (error, result) => {
+        if (error) reject(error);
+        else resolve(result as UploadApiResponse);
+      })
+      .end(buffer);
   });
 };

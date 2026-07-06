@@ -23,8 +23,7 @@ const getSingleProduct = async (id: string) => {
 
 const createProduct = async (payload: any, file: any) => {
   const imageName = payload.sku;
-  const path = file.path;
-  const uploaded = await sendImageToCloudinary(imageName, path);
+  const uploaded = await sendImageToCloudinary(imageName, file.buffer);
 
   if (!uploaded) throw new AppError(500, 'Image upload failed');
 
@@ -35,7 +34,7 @@ const createProduct = async (payload: any, file: any) => {
 const updateProduct = async (id: string, payload: any, file: any) => {
   if (file) {
     const imageName = payload.sku ?? 'product-' + id;
-    const uploaded = await sendImageToCloudinary(imageName, file.path);
+    const uploaded = await sendImageToCloudinary(imageName, file.buffer);
     if (!uploaded) throw new AppError(500, 'Image upload failed');
     payload.image = uploaded.secure_url;
   }
