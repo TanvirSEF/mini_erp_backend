@@ -3,6 +3,18 @@ import path from 'path';
 
 dotenv.config({ path: path.join(process.cwd(), '.env') });
 
+// comma separated origins allowed by cors, * means any
+const clientOrigins = (process.env.CLIENT_URL || '*')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const resolveCorsOrigin = () => {
+  if (clientOrigins.length === 0 || clientOrigins.includes('*')) return true;
+  if (clientOrigins.length === 1) return clientOrigins[0];
+  return clientOrigins;
+};
+
 export default {
   node_env: process.env.NODE_ENV || 'development',
   port: process.env.PORT || 5000,
@@ -14,6 +26,6 @@ export default {
   cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
   cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
-  // socket io cors origin
-  client_url: process.env.CLIENT_URL || '*',
+  // cors origin used by express and socket io
+  cors_origin: resolveCorsOrigin(),
 };

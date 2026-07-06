@@ -42,7 +42,7 @@ Server runs at `http://localhost:5000`. API docs at `http://localhost:5000/api/v
 | `CLOUDINARY_API_KEY` | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret |
 | `NODE_ENV` | `development` or `production` (controls error detail exposure) |
-| `CLIENT_URL` | Frontend origin allowed by Socket.IO CORS (e.g. `http://localhost:5173`) |
+| `CLIENT_URL` | CORS origins for Express + Socket.IO. One URL or a comma-separated list (e.g. `http://localhost:5173,https://app.example.com`). Use `*` to allow any. |
 
 ## Scripts
 | Script | Purpose |
@@ -124,17 +124,26 @@ socket.on('low-stock', (products) => showLowStockBanner(products));
 
 ## Production Build
 ```bash
-pnpm build      # tsc -> dist/ + copies swagger.json
-pnpm start      # node dist/server.js
+pnpm build      # tsc compiles src/ -> dist/
+pnpm start      # node dist/server.js (reads swagger.json from src/docs at runtime)
 ```
 
-## Deploy (Render)
+## Docker & Dokploy Deployment
+The repo ships a production multi-stage `Dockerfile`, a `.dockerignore`, and a `docker-compose.yml`. The image is built in two stages (full deps for compiling, prod-only deps for running), runs as a non-root user, ships a health check, and exposes port `5000`.
+
+Run locally with Docker:
+```bash
+docker compose up --build        # api at http://localhost:5000
+```
+
+Deploy on **Dokploy**:
 1. Push the repo to GitHub.
-2. Render → **New +** → **Web Service** → connect this repo.
-3. Build command: `pnpm install && pnpm build`
-4. Start command: `pnpm start`
-5. Add all environment variables (table above) in Render's dashboard.
-6. Deploy → use the Render URL as the Live Backend API URL.
+2. Dokploy → **Services → New → Application** → connect this repo. Dokploy auto-detects the `Dockerfile` and builds it.
+3. **Port:** `5000`.
+4. **Environment variables** — add every variable from the table above, with `NODE_ENV=production` and `CLIENT_URL` set to your live frontend URL.
+5. Deploy. Dokploy builds the image, injects the env vars at runtime, and routes traffic to port `5000`.
+
+> Env vars are injected by Dokploy at runtime and never baked into the image. The app reads them through `process.env`; the local `.env` is only used outside Docker.
 
 ## Frontend
 - Frontend repo: `[TODO]`
