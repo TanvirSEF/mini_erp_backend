@@ -17,9 +17,10 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-// hash password before saving
+// hash only when password changed
 userSchema.pre('save', async function () {
   const user = this as IUser;
+  if (!user.isModified('password')) return;
   user.password = await bcrypt.hash(user.password, Number(config.bcrypt_salt_rounds));
 });
 
