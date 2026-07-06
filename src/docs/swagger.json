@@ -123,7 +123,7 @@
         }
       }
     },
-    "/api/v1/products/": {
+    "/api/v1/products": {
       "get": {
         "tags": [
           "Products"
@@ -359,7 +359,7 @@
         ]
       }
     },
-    "/api/v1/sales/": {
+    "/api/v1/sales": {
       "post": {
         "tags": [
           "Sales"
@@ -447,7 +447,7 @@
         ]
       }
     },
-    "/api/v1/dashboard/": {
+    "/api/v1/dashboard": {
       "get": {
         "tags": [
           "Dashboard"
@@ -478,7 +478,7 @@
         ]
       }
     },
-    "/api/v1/roles/": {
+    "/api/v1/roles": {
       "get": {
         "tags": [
           "Roles"

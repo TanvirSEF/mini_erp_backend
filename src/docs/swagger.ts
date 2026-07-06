@@ -1,4 +1,5 @@
 import swaggerAutogen from 'swagger-autogen';
+import fs from 'fs';
 
 const doc = {
   openapi: '3.0.0',
@@ -192,4 +193,18 @@ const doc = {
 const outputFile = './src/docs/swagger.json';
 const endpointsFiles = ['./src/app.ts'];
 
-swaggerAutogen({ openapi: '3.0.0' })(outputFile, endpointsFiles, doc);
+swaggerAutogen({ openapi: '3.0.0' })(outputFile, endpointsFiles, doc).then(() => {
+  // Collection routes are registered as router.get('/') on a sub-router, so
+  // autogen emits a trailing slash (e.g. /api/v1/products/). Express matches
+  // both /x and /x/ at runtime, but the slash looks untidy in the docs, so we
+  // normalise the paths here. The root "/" is left untouched.
+  const spec = JSON.parse(fs.readFileSync(outputFile, 'utf-8'));
+  const cleaned: { [path: string]: any } = {};
+  for (const [path, definition] of Object.entries(spec.paths)) {
+    const normalized = path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
+    cleaned[normalized] = definition;
+  }
+  spec.paths = cleaned;
+  fs.writeFileSync(outputFile, JSON.stringify(spec, null, 2));
+  console.log('Swagger spec generated (trailing slashes normalized).');
+});
