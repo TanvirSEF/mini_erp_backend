@@ -13,7 +13,7 @@ const registerUserIntoDB = async (payload: IUser) => {
 };
 
 const loginUser = async (payload: ILoginUser) => {
-  // Generic message + 401 on both failure paths to avoid user enumeration
+  // same message and 401 both times to avoid user enumeration
   const user = await User.findOne({ email: payload.email }).select('+password');
   if (!user) {
     throw new AppError(401, 'Incorrect email or password.');

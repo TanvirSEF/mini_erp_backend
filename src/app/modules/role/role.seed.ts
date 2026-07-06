@@ -1,7 +1,7 @@
 import { Role } from './role.model';
 import { PERMISSIONS, WILDCARD_PERMISSION } from './role.permissions';
 
-// $setOnInsert below means these never overwrite a role an admin has edited
+// never overwrites a role an admin has edited
 const defaultRoles = [
   {
     name: 'Admin',
@@ -31,7 +31,7 @@ const defaultRoles = [
   },
 ];
 
-// Idempotent: only inserts roles that don't exist yet
+// only inserts missing roles
 export const seedRoles = async (): Promise<void> => {
   for (const role of defaultRoles) {
     await Role.updateOne({ name: role.name }, { $setOnInsert: role }, { upsert: true });

@@ -3,7 +3,7 @@ import http from 'http';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from './index';
 
-// Held in module scope so other files can reach the running server via getIO()
+// shared instance other files reach through getIO
 let io: SocketServer | null = null;
 
 export const initSocketServer = (server: http.Server): SocketServer => {
@@ -14,7 +14,7 @@ export const initSocketServer = (server: http.Server): SocketServer => {
     },
   });
 
-  // Clients must send their access token in handshake.auth
+  // client must send its token in handshake auth
   io.use((socket, next) => {
     const token = (socket.handshake.auth?.token as string) || undefined;
 
@@ -34,12 +34,12 @@ export const initSocketServer = (server: http.Server): SocketServer => {
   io.on('connection', (socket) => {
     const user = socket.data.user as JwtPayload | undefined;
 
-    // Group clients by role for targeted broadcasts
+    // room per role for targeted broadcasts
     if (user?.role) {
       socket.join(`role:${user.role}`);
     }
 
-    // Dashboard channel for live sale/low-stock updates
+    // dashboard room for live updates
     socket.join('dashboard');
   });
 

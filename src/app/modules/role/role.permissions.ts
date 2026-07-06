@@ -1,4 +1,4 @@
-// Permission catalogue for the route guards. Format: resource:action, e.g. auth('product:create').
+// permission strings for route guards format is resource action
 export const PERMISSIONS = {
   PRODUCT_READ: 'product:read',
   PRODUCT_CREATE: 'product:create',
@@ -13,8 +13,8 @@ export const PERMISSIONS = {
   ROLE_MANAGE: 'role:manage',
 } as const;
 
-// Reserved for Admin — grants every route so the system can't be locked out
+// admin only grants every route
 export const WILDCARD_PERMISSION = '*';
 
-// Used to validate role-management payloads (rejects unknown strings)
+// used to validate role updates
 export const ALL_PERMISSIONS: string[] = Object.values(PERMISSIONS);

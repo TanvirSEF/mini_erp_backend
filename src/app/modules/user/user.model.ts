@@ -17,7 +17,7 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-// Hash password before saving
+// hash password before saving
 userSchema.pre('save', async function () {
   const user = this as IUser;
   user.password = await bcrypt.hash(user.password, Number(config.bcrypt_salt_rounds));

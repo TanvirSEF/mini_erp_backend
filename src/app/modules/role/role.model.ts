@@ -7,7 +7,7 @@ const roleSchema = new Schema<IRole>(
       type: String,
       required: true,
       unique: true,
-      // Keep the role names in sync with the User model enum
+      // keep in sync with user model enum
       enum: ['Admin', 'Manager', 'Employee'],
     },
     permissions: {

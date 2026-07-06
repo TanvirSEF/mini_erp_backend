@@ -8,7 +8,7 @@ const doc = {
     version: '1.0.0',
     description: 'Auto-generated API documentation.',
   },
-  // Paths already include /api/v1, so the server URL must not repeat it (else Try-it-out 404s)
+  // paths already include api/v1 do not repeat here
   servers: [{ url: 'http://localhost:5000' }],
   components: {
     securitySchemes: {
@@ -193,7 +193,7 @@ const outputFile = './src/docs/swagger.json';
 const endpointsFiles = ['./src/app.ts'];
 
 swaggerAutogen({ openapi: '3.0.0' })(outputFile, endpointsFiles, doc).then(() => {
-  // Strip the trailing slash autogen adds on collection routes (cosmetic; root kept)
+  // strip trailing slash autogen adds on collections
   const spec = JSON.parse(fs.readFileSync(outputFile, 'utf-8'));
   const cleaned: { [path: string]: any } = {};
   for (const [path, definition] of Object.entries(spec.paths)) {
@@ -202,5 +202,5 @@ swaggerAutogen({ openapi: '3.0.0' })(outputFile, endpointsFiles, doc).then(() =>
   }
   spec.paths = cleaned;
   fs.writeFileSync(outputFile, JSON.stringify(spec, null, 2));
-  console.log('Swagger spec generated (trailing slashes normalized).');
+  console.log('Swagger spec generated.');
 });

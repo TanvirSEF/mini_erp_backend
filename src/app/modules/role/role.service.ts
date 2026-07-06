@@ -11,8 +11,7 @@ const updateRolePermissions = async (name: string, permissions: string[]) => {
     throw new AppError(404, `Role "${name}" does not exist.`);
   }
 
-  // The Admin role is immutable so nobody can accidentally strip the
-  // wildcard permission and lock the system out.
+  // admin permissions cannot be changed
   if (role.name === 'Admin') {
     throw new AppError(400, 'The Admin role permissions cannot be modified.');
   }

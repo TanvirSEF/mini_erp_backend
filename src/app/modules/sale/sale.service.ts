@@ -5,7 +5,7 @@ import { ISaleItem } from './sale_interface';
 import AppError from '../../errors/AppError';
 import { emitToRoom } from '../../utils/socketEmitter';
 
-// A product is flagged as low stock once its quantity drops to this value
+// stock below this is low
 const LOW_STOCK_THRESHOLD = 5;
 
 type TSaleInput = {
@@ -54,7 +54,7 @@ const createSale = async (payload: TSaleInput) => {
         subtotal,
       });
 
-      // Collected to emit a single low-stock event after the commit
+      // emit one low stock event after commit
       if (product.stockQuantity < LOW_STOCK_THRESHOLD) {
         lowStockAlerts.push({
           _id: product._id,
@@ -68,7 +68,7 @@ const createSale = async (payload: TSaleInput) => {
     const sale = await Sale.create([{ items: saleItems, grandTotal }], { session });
     await session.commitTransaction();
 
-    // emitToRoom swallows errors, so this can't break the sale flow
+    // emit never breaks the sale
     emitToRoom('dashboard', 'sale:created', {
       saleId: sale[0]._id,
       grandTotal,

@@ -13,7 +13,6 @@ export type TAuthUser = JwtPayload & {
   permissions: string[];
 };
 
-// Make the signed-in user available on req across the app
 declare global {
   namespace Express {
     interface Request {
@@ -22,7 +21,7 @@ declare global {
   }
 }
 
-// Database-driven RBAC. Pass the required permissions
+// database driven role based access control
 const auth = (...requiredPermissions: string[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
@@ -32,7 +31,7 @@ const auth = (...requiredPermissions: string[]) => {
       throw new AppError(401, 'Authentication required. Please log in.');
     }
 
-    // Bad/expired tokens become a clean 401 instead of a 500
+    // bad or expired token returns 401 not 500
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, config.jwt_access_secret as string) as JwtPayload;
@@ -40,13 +39,13 @@ const auth = (...requiredPermissions: string[]) => {
       throw new AppError(401, 'Invalid or expired access token.');
     }
 
-    // Reject tokens whose user has since been deleted
+    // reject tokens of deleted users
     const user = await User.findOne({ email: decoded.email });
     if (!user) {
       throw new AppError(401, 'The account belonging to this token no longer exists.');
     }
 
-    // Resolve permissions from the Role collection (DB-driven RBAC)
+    // load permissions from db
     const role = await Role.findOne({ name: user.role });
     if (!role) {
       throw new AppError(403, 'Your account role is not configured. Contact an administrator.');
@@ -60,12 +59,12 @@ const auth = (...requiredPermissions: string[]) => {
       permissions,
     } as TAuthUser;
 
-    // No specific permission requested → any authenticated user may proceed
+    // any logged in user passes when no permission is required
     if (requiredPermissions.length === 0) {
       return next();
     }
 
-    // The wildcard permission (Admin) satisfies every check
+    // admin wildcard passes every check
     const allowed =
       permissions.includes(WILDCARD_PERMISSION) ||
       requiredPermissions.some((perm) => permissions.includes(perm));

@@ -4,8 +4,7 @@
     "lib": ["ES2023"],
     "module": "commonjs",
     "moduleResolution": "node",
-    // 'node' (node10) resolution is deprecated in TS 6, but it is still the
-    // right fit for this CommonJS project's extensionless relative imports.
+    // node resolution deprecated in ts6 keep for extensionless imports
     "ignoreDeprecations": "6.0",
     "rootDir": "./src",
     "outDir": "./dist",

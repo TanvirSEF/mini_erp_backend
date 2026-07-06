@@ -11,7 +11,7 @@ cloudinary.config({
 export const sendImageToCloudinary = (imageName: string, path: string): Promise<UploadApiResponse | undefined> => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(path, { public_id: imageName }, (error, result) => {
-      // Remove file from local uploads folder after upload
+      // remove local file after upload
       fs.unlinkSync(path);
       if (error) reject(error);
       resolve(result);

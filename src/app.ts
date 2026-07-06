@@ -12,14 +12,14 @@ const swaggerDocument = JSON.parse(
 
 const app: Application = express();
 
-// Parsers
+// parsers
 app.use(express.json());
 app.use(cors());
 
-// API Docs (Swagger UI)
+// swagger docs
 app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Application Routes
+// routes
 app.use('/api/v1', router);
 
 app.get('/', (req: Request, res: Response) => {
@@ -29,10 +29,10 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
-// Global Error Handler Middleware (Must be defined last)
+// must be registered last
 app.use(globalErrorHandler);
 
-// Handle Not Found Routes
+// unknown routes
 app.use((req: Request, res: Response) => {
   res.status(404).json({
     success: false,

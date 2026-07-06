@@ -10,11 +10,11 @@ async function bootstrap() {
     await mongoose.connect(config.database_url as string);
     console.log('Database connected successfully');
 
-    // Seed default roles & permissions (idempotent — safe on every boot)
+    // seed roles on every boot
     await seedRoles();
     console.log('Default roles and permissions are ready');
 
-    // Use an explicit HTTP server so Socket.IO can attach to it
+    // http server so socket io can attach
     const server = http.createServer(app);
     initSocketServer(server);
 
@@ -22,7 +22,7 @@ async function bootstrap() {
       console.log(`Application listening on port ${config.port}`);
     });
 
-    // Fail fast on unhandled rejections instead of running in a broken state
+    // crash on unhandled rejection
     process.on('unhandledRejection', (reason) => {
       console.error('Unhandled Rejection:', reason);
       server.close(() => process.exit(1));

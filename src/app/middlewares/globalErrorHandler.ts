@@ -1,29 +1,29 @@
 import { ErrorRequestHandler } from 'express';
 import config from '../config';
 
-// Converts Mongoose/JWT errors into consistent HTTP responses; hides internals in prod
+// map mongoose and jwt errors to clean http responses
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Something went wrong!';
 
-  // Mongoose: invalid ObjectId or cast failure
+  // invalid objectid
   if (err.name === 'CastError') {
     statusCode = 400;
     message = `Invalid value for ${err.path}: ${err.value}`;
   }
-  // Mongoose: schema validation failure
+  // schema validation
   else if (err.name === 'ValidationError') {
     statusCode = 400;
     const messages = Object.values(err.errors).map((e: any) => e.message);
     message = messages.join(', ');
   }
-  // Mongoose: unique constraint violation (duplicate key)
+  // duplicate key
   else if (err.code === 11000) {
     statusCode = 409;
     const field = Object.keys(err.keyValue || {})[0] || 'field';
     message = `Duplicate value for "${field}". It already exists.`;
   }
-  // JWT issues (safety net — the auth middleware already converts these)
+  // jwt errors auth middleware usually catches these first
   else if (err.name === 'TokenExpiredError') {
     statusCode = 401;
     message = 'Your session has expired. Please log in again.';
@@ -37,7 +37,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.status(statusCode).json({
     success: false,
     message,
-    // Stack and raw error stay local; never leak internals to clients
+    // only in dev
     ...(isDevelopment ? { errorDetails: err, stack: err.stack } : {}),
   });
 };
