@@ -9,7 +9,6 @@ const registerValidation = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Valid email is required'),
   password: z.string().min(1, 'Password is required'),
-  role: z.enum(['Admin', 'Manager', 'Employee']).optional(),
 });
 
 const updateRoleValidation = z.object({
