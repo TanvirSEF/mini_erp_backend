@@ -4,13 +4,29 @@ import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import AppError from '../../errors/AppError';
 
 const getAllProducts = async (query: Record<string, unknown>) => {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+
   const productQuery = new QueryBuilder(Product.find(), query)
     .search(['name', 'category', 'sku'])
     .filter()
     .sort()
     .paginate();
 
-  return await productQuery.modelQuery;
+  const [result, total] = await Promise.all([
+    productQuery.modelQuery,
+    productQuery.totalCount(),
+  ]);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPage: Math.ceil(total / limit) || 1,
+    },
+    result,
+  };
 };
 
 const getSingleProduct = async (id: string) => {
