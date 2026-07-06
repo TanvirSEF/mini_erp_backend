@@ -24,15 +24,11 @@ const loginUser = async (payload: ILoginUser) => {
     throw new AppError(401, 'Incorrect email or password.');
   }
 
-  const jwtPayload = {
-    userId: user._id,
-    role: user.role,
-    email: user.email,
-  };
-
-  const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
-    expiresIn: config.jwt_access_expires_in as any,
-  });
+  const accessToken = jwt.sign(
+    { userId: user._id, role: user.role, email: user.email },
+    config.jwt_access_secret as string,
+    { expiresIn: config.jwt_access_expires_in as any }
+  );
 
   return {
     accessToken,
@@ -45,7 +41,60 @@ const loginUser = async (payload: ILoginUser) => {
   };
 };
 
+const getAllUsersFromDB = async () => {
+  // password is select:false so it is never returned here
+  return await User.find().sort({ createdAt: -1 });
+};
+
+const updateUserRoleIntoDB = async (id: string, role: string, currentUserId: string) => {
+  if (String(currentUserId) === String(id)) {
+    throw new AppError(400, 'You cannot change your own role.');
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new AppError(404, 'User not found.');
+  }
+
+  // never demote the last admin
+  if (user.role === 'Admin' && role !== 'Admin') {
+    const adminCount = await User.countDocuments({ role: 'Admin' });
+    if (adminCount <= 1) {
+      throw new AppError(400, 'Cannot demote the last admin account.');
+    }
+  }
+
+  user.role = role as IUser['role'];
+  await user.save();
+  return user;
+};
+
+const deleteUserFromDB = async (id: string, currentUserId: string) => {
+  if (String(currentUserId) === String(id)) {
+    throw new AppError(400, 'You cannot delete your own account.');
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new AppError(404, 'User not found.');
+  }
+
+  // never delete the last admin
+  if (user.role === 'Admin') {
+    const adminCount = await User.countDocuments({ role: 'Admin' });
+    if (adminCount <= 1) {
+      throw new AppError(400, 'Cannot delete the last admin account.');
+    }
+  }
+
+  await User.findByIdAndDelete(id);
+  return user;
+};
+
 export const UserServices = {
   registerUserIntoDB,
   loginUser,
+  getAllUsersFromDB,
+  updateUserRoleIntoDB,
+  deleteUserFromDB,
 };

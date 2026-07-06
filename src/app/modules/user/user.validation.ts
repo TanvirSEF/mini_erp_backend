@@ -12,7 +12,12 @@ const registerValidation = z.object({
   role: z.enum(['Admin', 'Manager', 'Employee']).optional(),
 });
 
+const updateRoleValidation = z.object({
+  role: z.enum(['Admin', 'Manager', 'Employee']),
+});
+
 export const UserValidations = {
   loginValidation,
   registerValidation,
+  updateRoleValidation,
 };

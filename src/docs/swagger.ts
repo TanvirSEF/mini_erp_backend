@@ -185,6 +185,13 @@ const doc = {
           },
         },
       },
+      UserRoleInput: {
+        type: 'object',
+        required: ['role'],
+        properties: {
+          role: { type: 'string', enum: ['Admin', 'Manager', 'Employee'] },
+        },
+      },
     },
   },
 };

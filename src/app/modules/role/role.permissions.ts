@@ -11,6 +11,7 @@ export const PERMISSIONS = {
   DASHBOARD_READ: 'dashboard:read',
 
   ROLE_MANAGE: 'role:manage',
+  USER_MANAGE: 'user:manage',
 } as const;
 
 // admin only grants every route

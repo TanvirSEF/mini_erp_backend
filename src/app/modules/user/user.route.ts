@@ -3,9 +3,10 @@ import { UserControllers } from './user.controller';
 import { UserValidations } from './user.validation';
 import validateRequest from '../../middlewares/validateRequest';
 
-const router = express.Router();
+// public auth routes mounted at /auth
+const authRouter = express.Router();
 
-router.post(
+authRouter.post(
   '/register',
   validateRequest(UserValidations.registerValidation),
   /* #swagger.tags = ['Auth'] */
@@ -19,7 +20,7 @@ router.post(
   UserControllers.registerUser
 );
 
-router.post(
+authRouter.post(
   '/login',
   validateRequest(UserValidations.loginValidation),
   /* #swagger.tags = ['Auth'] */
@@ -33,4 +34,4 @@ router.post(
   UserControllers.loginUser
 );
 
-export const UserRoutes = router;
+export const UserAuthRoutes = authRouter;

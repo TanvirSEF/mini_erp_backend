@@ -61,6 +61,13 @@ Base URL: `/api/v1` · Response envelope: `{ success, message, data }`
 | POST | `/auth/register` | Public | Register a new user |
 | POST | `/auth/login` | Public | Login → returns JWT access token |
 
+### Users (admin only)
+| Method | Path | Access | Description |
+|---|---|---|---|
+| GET | `/users` | Admin | List all users |
+| PATCH | `/users/:id/role` | Admin | Change a user's role (body: `{ "role": "Manager" }`) |
+| DELETE | `/users/:id` | Admin | Delete a user (cannot delete self or the last admin) |
+
 ### Products
 | Method | Path | Access | Description |
 |---|---|---|---|
