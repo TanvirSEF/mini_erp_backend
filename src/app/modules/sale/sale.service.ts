@@ -1,11 +1,22 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { Sale } from './sale.model';
 import { Product } from '../product/product.model';
 import { ISaleItem } from './sale_interface';
 import AppError from '../../errors/AppError';
+import { emitToRoom } from '../../utils/socketEmitter';
+
+// A product is flagged as low stock once its quantity drops to this value
+const LOW_STOCK_THRESHOLD = 5;
 
 type TSaleInput = {
   items: { productId: string; quantity: number }[];
+};
+
+type TLowStockAlert = {
+  _id: Types.ObjectId;
+  name: string;
+  sku: string;
+  stockQuantity: number;
 };
 
 const createSale = async (payload: TSaleInput) => {
@@ -16,6 +27,7 @@ const createSale = async (payload: TSaleInput) => {
 
     let grandTotal = 0;
     const saleItems: ISaleItem[] = [];
+    const lowStockAlerts: TLowStockAlert[] = [];
 
     for (const item of payload.items) {
       const product = await Product.findById(item.productId).session(session);
@@ -41,10 +53,34 @@ const createSale = async (payload: TSaleInput) => {
         quantity: item.quantity,
         subtotal,
       });
+
+      // Track products that just fell below the threshold so we can push
+      // a single low-stock notification after the sale is committed.
+      if (product.stockQuantity < LOW_STOCK_THRESHOLD) {
+        lowStockAlerts.push({
+          _id: product._id,
+          name: product.name,
+          sku: product.sku,
+          stockQuantity: product.stockQuantity,
+        });
+      }
     }
 
     const sale = await Sale.create([{ items: saleItems, grandTotal }], { session });
     await session.commitTransaction();
+
+    // Real-time updates for connected dashboard clients.
+    // emitToRoom swallows its own errors, so this never breaks the sale flow.
+    emitToRoom('dashboard', 'sale:created', {
+      saleId: sale[0]._id,
+      grandTotal,
+      itemsCount: saleItems.length,
+    });
+
+    if (lowStockAlerts.length > 0) {
+      emitToRoom('dashboard', 'low-stock', lowStockAlerts);
+    }
+
     return sale[0];
   } catch (err) {
     await session.abortTransaction();

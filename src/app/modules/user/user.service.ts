@@ -13,14 +13,15 @@ const registerUserIntoDB = async (payload: IUser) => {
 };
 
 const loginUser = async (payload: ILoginUser) => {
+  // Generic message + 401 on both failure paths to avoid user enumeration
   const user = await User.findOne({ email: payload.email }).select('+password');
   if (!user) {
-    throw new AppError(404, 'User explicitly not found with this email.');
+    throw new AppError(401, 'Incorrect email or password.');
   }
 
   const isPasswordMatched = await bcrypt.compare(payload.password, user.password);
   if (!isPasswordMatched) {
-    throw new AppError(403, 'Password credentials do not match.');
+    throw new AppError(401, 'Incorrect email or password.');
   }
 
   const jwtPayload = {

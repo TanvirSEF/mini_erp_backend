@@ -8,6 +8,7 @@ RESTful API for a Mini ERP system: JWT authentication, role-based access control
 - JWT authentication (`jsonwebtoken`)
 - Zod input validation
 - Cloudinary (product images) + Multer (file upload)
+- Socket.IO (real-time dashboard updates)
 - Swagger UI (auto-generated API docs)
 
 ## Prerequisites
@@ -40,6 +41,8 @@ Server runs at `http://localhost:5000`. API docs at `http://localhost:5000/api/v
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
 | `CLOUDINARY_API_KEY` | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `NODE_ENV` | `development` or `production` (controls error detail exposure) |
+| `CLIENT_URL` | Frontend origin allowed by Socket.IO CORS (e.g. `http://localhost:5173`) |
 
 ## Scripts
 | Script | Purpose |
@@ -82,12 +85,36 @@ Base URL: `/api/v1` · Response envelope: `{ success, message, data }`
 
 Swagger UI: `http://localhost:5000/api/v1/docs`
 
-## Roles & Permissions
-| Role | Permissions |
+## Roles & Permissions (Database-driven)
+Roles and their permissions are stored in MongoDB and seeded automatically on startup. Permissions use a `resource:action` format (e.g. `product:create`) and routes are guarded through the `auth(...)` middleware, so an admin can reassign a role's permissions at runtime without a code change.
+
+| Role | Default Permissions |
 |---|---|
-| **Admin** | Full access (all endpoints) |
-| **Manager** | Manage products (CRUD), create sales, view dashboard & sales history |
-| **Employee** | View products, create sales |
+| **Admin** | `*` (wildcard — unrestricted access to everything) |
+| **Manager** | `product:*`, `sale:create`, `sale:read`, `dashboard:read` |
+| **Employee** | `product:read`, `sale:create` |
+
+| Method | Path | Access | Description |
+|---|---|---|---|
+| GET | `/roles` | Admin | List all roles and their permissions |
+| PATCH | `/roles/:name` | Admin | Update a role's permissions (body: `{ "permissions": ["..."] }`) |
+
+> The `Admin` role is immutable (its wildcard cannot be removed), which prevents anyone from locking the system out.
+
+## Real-time Updates (Socket.IO)
+The server exposes a Socket.IO endpoint (same origin/port as the API). Connections are JWT-authenticated — the client must pass its access token in `handshake.auth.token`.
+
+| Event | Channel | Payload | When |
+|---|---|---|---|
+| `sale:created` | `dashboard` | `{ saleId, grandTotal, itemsCount }` | After every successful sale |
+| `low-stock` | `dashboard` | `[{ _id, name, sku, stockQuantity }]` | When a sale pushes a product below 5 units |
+
+Frontend example (`socket.io-client`):
+```ts
+const socket = io(API_URL, { auth: { token: accessToken } });
+socket.on('sale:created', () => refetchDashboard());
+socket.on('low-stock', (products) => showLowStockBanner(products));
+```
 
 ## Admin Credentials (for testing)
 - Email: `admin@test.com`

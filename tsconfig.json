@@ -2,8 +2,11 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2023"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    // 'node' (node10) resolution is deprecated in TS 6, but it is still the
+    // right fit for this CommonJS project's extensionless relative imports.
+    "ignoreDeprecations": "6.0",
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,

@@ -4,40 +4,79 @@ import config from '../config';
 import AppError from '../errors/AppError';
 import catchAsync from '../utils/catchAsync';
 import { User } from '../modules/user/user.model';
+import { Role } from '../modules/role/role.model';
+import { WILDCARD_PERMISSION } from '../modules/role/role.permissions';
 
-// Extend Express Request interface to include user payload context
+// The authenticated user attached to every protected request.
+export type TAuthUser = JwtPayload & {
+  role: string;
+  email: string;
+  permissions: string[];
+};
+
+// Extend Express Request so downstream handlers can read the signed-in user
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload;
+      user?: TAuthUser;
     }
   }
 }
 
-const auth = (...requiredRoles: string[]) => {
+// Database-driven role-based access control.
+// Pass the permissions a route needs, e.g. auth('product:create').
+// Pass nothing when any authenticated user should be allowed through.
+const auth = (...requiredPermissions: string[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization?.split(' ')[1];
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
 
     if (!token) {
-      throw new AppError(401, 'You are not authorized to access this resource.');
+      throw new AppError(401, 'Authentication required. Please log in.');
     }
 
-    // Verify token validity
-    const decoded = jwt.verify(token, config.jwt_access_secret as string) as JwtPayload;
-    const { role, email } = decoded;
+    // Verify the token. A bad or expired token becomes a clean 401, not a 500.
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(token, config.jwt_access_secret as string) as JwtPayload;
+    } catch {
+      throw new AppError(401, 'Invalid or expired access token.');
+    }
 
-    // Verify if the user still exists in the database
-    const user = await User.findOne({ email });
+    // Make sure the account still exists (handles users deleted after login)
+    const user = await User.findOne({ email: decoded.email });
     if (!user) {
-      throw new AppError(404, 'The user belonging to this token no longer exists.');
+      throw new AppError(401, 'The account belonging to this token no longer exists.');
     }
 
-    // Validate role permissions
-    if (requiredRoles.length && !requiredRoles.includes(role)) {
-      throw new AppError(403, 'Forbidden: You do not have permission to perform this action.');
+    // Resolve the user's permissions from the Role collection (DB-driven RBAC)
+    const role = await Role.findOne({ name: user.role });
+    if (!role) {
+      throw new AppError(403, 'Your account role is not configured. Contact an administrator.');
     }
 
-    req.user = decoded;
+    const permissions = role.permissions || [];
+    req.user = {
+      userId: decoded.userId,
+      email: user.email,
+      role: user.role,
+      permissions,
+    } as TAuthUser;
+
+    // No specific permission requested -> any authenticated user may proceed
+    if (requiredPermissions.length === 0) {
+      return next();
+    }
+
+    // The wildcard permission (Admin) satisfies every check
+    const allowed =
+      permissions.includes(WILDCARD_PERMISSION) ||
+      requiredPermissions.some((perm) => permissions.includes(perm));
+
+    if (!allowed) {
+      throw new AppError(403, 'Forbidden: you do not have permission to perform this action.');
+    }
+
     next();
   });
 };
