@@ -2,12 +2,14 @@ import express from 'express';
 import { UserControllers } from './user.controller';
 import { UserValidations } from './user.validation';
 import validateRequest from '../../middlewares/validateRequest';
+import { loginRateLimit } from '../../middlewares/rateLimit';
 
 // public auth routes mounted at /auth
 const authRouter = express.Router();
 
 authRouter.post(
   '/login',
+  loginRateLimit,
   validateRequest(UserValidations.loginValidation),
   /* #swagger.tags = ['Auth'] */
   /* #swagger.summary = 'Log in and receive a JWT' */

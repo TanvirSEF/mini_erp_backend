@@ -3,8 +3,11 @@
 Backend for a small inventory and sales app. It covers JWT login, role-based access, products (with images, search, sort, and pagination), sales with automatic stock control, and a dashboard. API docs are generated with Swagger.
 
 ## Test login
+A default admin is created automatically on the first run (with a fresh database). Sign in with:
 - Email: `admin@test.com`
 - Password: `pass1234`
+
+Prefer your own credentials? Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env` before the first run.
 
 ## Live links
 - API: https://erp.tanvirmern.com

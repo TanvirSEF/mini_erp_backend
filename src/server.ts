@@ -4,6 +4,7 @@ import app from './app';
 import config from './app/config';
 import { initSocketServer } from './app/config/socket';
 import { seedRoles } from './app/modules/role/role.seed';
+import { seedAdmin } from './app/modules/user/user.seed';
 
 async function bootstrap() {
   try {
@@ -12,6 +13,7 @@ async function bootstrap() {
 
     // seed roles on every boot
     await seedRoles();
+    await seedAdmin();
     console.log('Default roles and permissions are ready');
 
     // http server so socket io can attach

@@ -30,18 +30,17 @@ const createSale = async (payload: TSaleInput) => {
     const lowStockAlerts: TLowStockAlert[] = [];
 
     for (const item of payload.items) {
-      const product = await Product.findById(item.productId).session(session);
+      const product = await Product.findOneAndUpdate(
+        { _id: item.productId, stockQuantity: { $gte: item.quantity } },
+        { $inc: { stockQuantity: -item.quantity } },
+        { new: true, session }
+      );
 
       if (!product) {
-        throw new AppError(404, 'Product not found: ' + item.productId);
+        const exists = await Product.findById(item.productId).session(session);
+        if (!exists) throw new AppError(404, 'Product not found: ' + item.productId);
+        throw new AppError(409, 'Insufficient stock for ' + exists.name);
       }
-
-      if (product.stockQuantity < item.quantity) {
-        throw new AppError(409, 'Insufficient stock for ' + product.name);
-      }
-
-      product.stockQuantity = product.stockQuantity - item.quantity;
-      await product.save({ session });
 
       const subtotal = product.sellingPrice * item.quantity;
       grandTotal = grandTotal + subtotal;
@@ -54,7 +53,6 @@ const createSale = async (payload: TSaleInput) => {
         subtotal,
       });
 
-      // emit one low stock event after commit
       if (product.stockQuantity < LOW_STOCK_THRESHOLD) {
         lowStockAlerts.push({
           _id: product._id,

@@ -23,6 +23,8 @@ export default {
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS || '12',
   jwt_access_secret: process.env.JWT_ACCESS_SECRET,
   jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN,
+  admin_email: process.env.ADMIN_EMAIL || 'admin@test.com',
+  admin_password: process.env.ADMIN_PASSWORD || 'pass1234',
   cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
   cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
