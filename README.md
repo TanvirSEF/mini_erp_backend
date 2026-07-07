@@ -11,6 +11,7 @@ Prefer your own credentials? Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env` be
 
 ## Live links
 - API: https://erp.tanvirmern.com
+- Backend repo: https://github.com/TanvirSEF/mini_erp_backend
 - Swagger docs: https://erp.tanvirmern.com/api/v1/docs
 - Frontend: https://erpfe.tanvirmern.com
 - Frontend repo: https://github.com/TanvirSEF/mini_erp_frontend
@@ -84,6 +85,12 @@ Base path: `/api/v1`. Every response uses `{ success, message, data }`.
 |---|---|---|---|
 | GET | `/dashboard` | Admin, Manager | totalProducts, salesCount, totalSales, lowStockProducts |
 
+### Roles (admin only)
+| Method | Path | Access | Description |
+|---|---|---|---|
+| GET | `/roles` | Admin | List all roles and their permissions |
+| PATCH | `/roles/:name` | Admin | Update a role's permissions |
+
 `GET /products` takes `searchTerm`, `category`, `sort`, `page`, `limit`, and returns `{ meta, result }`.
 
 ## Roles and permissions
@@ -95,7 +102,7 @@ Roles and permissions are stored in the database and seeded on startup. An admin
 | Manager | Manage products, record sales, view dashboard |
 | Employee | View products, record sales |
 
-Admin-only: `GET /roles` and `PATCH /roles/:name`. The Admin role itself can't be weakened, so no one can lock the system out.
+The Admin role itself can't be weakened, so no one can lock the system out.
 
 ## Real-time updates
 Socket.IO pushes live updates to the dashboard. Authenticate the socket with the JWT in `handshake.auth.token`. On the `dashboard` channel you get `sale:created` after a sale, and `low-stock` when a product drops below 5.
