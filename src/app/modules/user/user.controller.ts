@@ -22,6 +22,16 @@ const loginUser = catchAsync(async (req, res) => {
   });
 });
 
+const getCurrentUser = catchAsync(async (req, res) => {
+  const result = await UserServices.getCurrentUser(req.user!.userId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Current user retrieved successfully!',
+    data: result,
+  });
+});
+
 const getAllUsers = catchAsync(async (req, res) => {
   const result = await UserServices.getAllUsersFromDB();
   sendResponse(res, {
@@ -59,6 +69,7 @@ const deleteUser = catchAsync(async (req, res) => {
 export const UserControllers = {
   createUser,
   loginUser,
+  getCurrentUser,
   getAllUsers,
   updateUserRole,
   deleteUser,

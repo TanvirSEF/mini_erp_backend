@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 import { User } from './user.model';
+import { Role } from '../role/role.model';
 import { ILoginUser, IUser } from './user_interface';
 
 const createUserIntoDB = async (payload: IUser) => {
@@ -30,6 +31,8 @@ const loginUser = async (payload: ILoginUser) => {
     { expiresIn: config.jwt_access_expires_in as any }
   );
 
+  const role = await Role.findOne({ name: user.role });
+
   return {
     accessToken,
     user: {
@@ -37,7 +40,25 @@ const loginUser = async (payload: ILoginUser) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      permissions: role?.permissions ?? [],
     },
+  };
+};
+
+const getCurrentUser = async (userId: string) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(404, 'User not found.');
+  }
+
+  const role = await Role.findOne({ name: user.role });
+
+  return {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    permissions: role?.permissions ?? [],
   };
 };
 
@@ -94,6 +115,7 @@ const deleteUserFromDB = async (id: string, currentUserId: string) => {
 export const UserServices = {
   createUserIntoDB,
   loginUser,
+  getCurrentUser,
   getAllUsersFromDB,
   updateUserRoleIntoDB,
   deleteUserFromDB,
