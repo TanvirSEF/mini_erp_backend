@@ -39,6 +39,8 @@ Node.js, Express 5, TypeScript, MongoDB with Mongoose, JWT, Zod, Cloudinary + Mu
 | `BCRYPT_SALT_ROUNDS` | bcrypt cost factor (e.g. 12) |
 | `JWT_ACCESS_SECRET` | Secret used to sign JWTs |
 | `JWT_ACCESS_EXPIRES_IN` | Token expiry (e.g. 1d) |
+| `ADMIN_EMAIL` | Email for the default admin created on first boot (default `admin@test.com`) |
+| `ADMIN_PASSWORD` | Password for the default admin (default `pass1234`) |
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
 | `CLOUDINARY_API_KEY` | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret |
