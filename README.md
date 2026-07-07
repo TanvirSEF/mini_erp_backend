@@ -54,6 +54,7 @@ Base path: `/api/v1`. Every response uses `{ success, message, data }`.
 | Method | Path | Access | Description |
 |---|---|---|---|
 | POST | `/auth/login` | Public | Login, returns a JWT |
+| GET | `/auth/me` | Any logged-in user | Current user with their permissions |
 
 ### Users (admin only)
 | Method | Path | Access | Description |
